@@ -91,7 +91,7 @@ class TaskListener(TaskConfig):
                 self.user_id,
                 f"""➲ <b><u>Task Started :</u></b>
 ┃
-┖ <b>Link:</b> <a href='{self.source_url}'>Click Here</a>
+<b>Link:</b> <a href='{self.source_url}'>Click Here</a>
 """,
             )
         if (
@@ -347,20 +347,19 @@ class TaskListener(TaskConfig):
             await database.rm_complete_task(self.message.link)
         msg = (
             f"<b><i>{escape(self.name)}</i></b>\n│"
-            f"\n┟ <b>Size</b> → {get_readable_file_size(self.size)}"
-            f"\n┠ <b>Time Taken</b> → {get_readable_time(time() - self.message.date.timestamp())}"
-            f"\n┠ <b>In Mode</b> → {self.mode[0]}"
-            f"\n┠ <b>Out Mode</b> → {self.mode[1]}"
+            f"\n<b>Size</b> {get_readable_file_size(self.size)}"
+            f"\n<b>Time Taken</b> {get_readable_time(time() - self.message.date.timestamp())}"
+            f"\n<b>In Mode</b> {self.mode[0]}"
+            f"\n<b>Out Mode</b> {self.mode[1]}"
         )
         LOGGER.info(f"Task Done: {self.name}")
         if self.is_leech:
-            msg += f"\n┠ <b>Total Files</b> → {folders}"
+            msg += f"\n<b>Total Files</b> {folders}"
             if mime_type != 0:
-                msg += f"\n┠ <b>Corrupted Files</b> → {mime_type}"
-            msg += f"\n┖ <b>By</b> → {self.tag}\n\n"
+                msg += f"\n<b>Corrupted Files</b> {mime_type}"
+            msg += f"\n<b>By</b> {self.tag}\n\n"
 
             if self.bot_pm:
-                pmsg = msg
                 pmsg += "〶 <b><u>Action Performed :</u></b>\n"
                 pmsg += "⋗ <i>File(s) have been sent to User PM</i>\n\n"
                 if self.is_super_chat:
@@ -379,7 +378,7 @@ class TaskListener(TaskConfig):
                         if chat_id.isdigit():
                             chat_id = f"-100{chat_id}"
                         flink = f"https://t.me/{TgClient.BNAME}?start={encode_slink('file' + chat_id + '&&' + msg_id)}"
-                        fmsg += f"\n┖ <b>Get Media</b> → <a href='{flink}'>Store Link</a> | <a href='https://t.me/share/url?url={flink}'>Share Link</a>"
+                        fmsg += f"\n<b>Get Media</b> <a href='{flink}'>Store Link</a> | <a href='https://t.me/share/url?url={flink}'>Share Link</a>"
                     fmsg += "\n"
                     if len(fmsg.encode() + msg.encode()) > 4000:
                         await send_message(log_chat, msg + fmsg)
@@ -388,10 +387,12 @@ class TaskListener(TaskConfig):
                 if fmsg != "":
                     await send_message(log_chat, msg + fmsg)
         else:
-            msg += f"\n│\n┟ <b>Type</b> → {mime_type}"
+            pmsg += "〶 <b><u>Action Performed :</u></b>\n"
+            pmsg += "⋗ {self.tag}<i>Link(s) have been sent to User PM</i>\n\n"
+            msg += f"\n\n<b>Type</b> {mime_type}"
             if mime_type == "Folder":
-                msg += f"\n┠ <b>SubFolders</b> → {folders}"
-                msg += f"\n┠ <b>Files</b> → {files}"
+                msg += f"\n<b>SubFolders</b> {folders}"
+                msg += f"\n<b>Files</b> {files}"
             if (
                 link
                 or rclone_path
@@ -400,7 +401,7 @@ class TaskListener(TaskConfig):
             ):
                 buttons = ButtonMaker()
                 if link:
-                    buttons.url_button("☁️ Cloud Link", link)
+                    buttons.url_button("Cloud", link)
                 else:
                     msg += f"\n\nPath: <code>{rclone_path}</code>"
                 if rclone_path and Config.RCLONE_SERVE_URL and not self.private_link:
@@ -409,7 +410,7 @@ class TaskListener(TaskConfig):
                     share_url = f"{Config.RCLONE_SERVE_URL}/{remote}/{url_path}"
                     if mime_type == "Folder":
                         share_url += "/"
-                    buttons.url_button("🔗 Rclone Link", share_url)
+                    buttons.url_button("Rclone", share_url)
                 if not rclone_path and dir_id:
                     INDEX_URL = ""
                     if self.private_link:
@@ -418,16 +419,17 @@ class TaskListener(TaskConfig):
                         INDEX_URL = Config.INDEX_URL
                     if INDEX_URL:
                         share_url = f"{INDEX_URL}findpath?id={dir_id}"
-                        buttons.url_button("⚡ Index Link", share_url)
+                        buttons.url_button("Index", share_url)
                         if mime_type.startswith(("image", "video", "audio")):
                             share_urls = f"{INDEX_URL}findpath?id={dir_id}&view=true"
-                            buttons.url_button("🌐 View Link", share_urls)
+                            buttons.url_button("View", share_urls)
                 button = buttons.build_menu(2)
             else:
-                msg += f"\n┃\n┠ Path: <code>{rclone_path}</code>"
+                msg += f"\n\nPath: <code>{rclone_path}</code>"
                 button = None
-            msg += f"\n┃\n┖ <b>By</b> → {self.tag}"
-            await send_message(self.message, msg, button)
+            msg += f"\n\n<b>By</b> {self.tag}"
+            await send_message(log_chat, msg, button)
+            await send_message(self.message, pmmsg)
         if self.seed:
             await clean_target(self.up_dir)
             async with queue_dict_lock:
