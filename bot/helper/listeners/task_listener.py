@@ -360,6 +360,7 @@ class TaskListener(TaskConfig):
             msg += f"\n<b>By</b> {self.tag}\n\n"
 
             if self.bot_pm:
+                pmsg = msg
                 pmsg += "〶 <b><u>Action Performed :</u></b>\n"
                 pmsg += "⋗ <i>File(s) have been sent to User PM</i>\n\n"
                 if self.is_super_chat:
@@ -387,8 +388,7 @@ class TaskListener(TaskConfig):
                 if fmsg != "":
                     await send_message(log_chat, f"{msg}<blockquote expandable>{fmsg}</blockquote>")
         else:
-            pmsg += "〶 <b><u>Action Performed :</u></b>\n"
-            pmsg += "⋗ {self.tag}<i>Link(s) have been sent to User PM</i>\n\n"
+            log_chat = self.user_id if self.bot_pm else self.message
             msg += f"\n\n<b>Type</b> {mime_type}"
             if mime_type == "Folder":
                 msg += f"\n<b>SubFolders</b> {folders}"
@@ -428,8 +428,7 @@ class TaskListener(TaskConfig):
                 msg += f"\n\nPath: <code>{rclone_path}</code>"
                 button = None
             msg += f"\n\n<b>By</b> {self.tag}"
-            await send_message(log_chat, msg, button)
-            await send_message(self.message, pmmsg)
+            await send_message(self.message, msg, button)
         if self.seed:
             await clean_target(self.up_dir)
             async with queue_dict_lock:

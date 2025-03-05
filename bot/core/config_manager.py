@@ -68,7 +68,7 @@ class Config:
     VERIFY_TIMEOUT = 0
     LOGIN_PASS = ""
     TORRENT_TIMEOUT = 0
-    TIMEZONE = "Asia/Kolkata"
+    TIMEZONE = "Asia/Jakarta"
     USER_MAX_TASKS = 0
     USER_TIME_INTERVAL = 0
     UPLOAD_PATHS = {}
