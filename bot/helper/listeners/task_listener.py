@@ -346,7 +346,7 @@ class TaskListener(TaskConfig):
         ):
             await database.rm_complete_task(self.message.link)
         msg = (
-            f"<b><i>{escape(self.name)}</i></b>\n│"
+            f"<b><i>{escape(self.name)}</i></b>\n"
             f"\n<b>Size</b> {get_readable_file_size(self.size)}"
             f"\n<b>Time Taken</b> {get_readable_time(time() - self.message.date.timestamp())}"
             f"\n<b>In Mode</b> {self.mode[0]}"
@@ -381,11 +381,11 @@ class TaskListener(TaskConfig):
                         fmsg += f"\n<b>Get Media</b> <a href='{flink}'>Store Link</a> | <a href='https://t.me/share/url?url={flink}'>Share Link</a>"
                     fmsg += "\n"
                     if len(fmsg.encode() + msg.encode()) > 4000:
-                        await send_message(log_chat, msg + fmsg)
+                        await send_message(log_chat, f"{msg}<blockquote expandable>{fmsg}</blockquote>")
                         await sleep(1)
                         fmsg = ""
                 if fmsg != "":
-                    await send_message(log_chat, msg + fmsg)
+                    await send_message(log_chat, f"{msg}<blockquote expandable>{fmsg}</blockquote>")
         else:
             pmsg += "〶 <b><u>Action Performed :</u></b>\n"
             pmsg += "⋗ {self.tag}<i>Link(s) have been sent to User PM</i>\n\n"
